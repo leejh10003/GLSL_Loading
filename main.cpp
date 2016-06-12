@@ -64,6 +64,29 @@ class Cube
 protected:
 	Vertex vertices[8];
 public:
+	void draw()
+	{
+
+		glBegin(GL_QUADS);
+		glNormal3f(0.0f, 0.0f, 1.0f);
+		for(int i = 0; i < 8; i++) i & 0b1 == 1 ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : 0;
+
+		glNormal3f(0.0f, 0.0f, -1.0f);
+		for (int i = 0; i < 8; i++) i & 0b1 == 0 ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : 0;
+
+		glNormal3f(0.0f, 1.0f, 0.0f);
+		for (int i = 0; i < 8; i++) i & 0b10 == 1 ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : 0;
+
+		glNormal3f(0.0f, -1.0f, 0.0f);
+		for (int i = 0; i < 8; i++) i & 0b10 == 0 ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : 0;
+
+		glNormal3f(1.0f, 0.0f, 0.0f);
+		for (int i = 0; i < 8; i++) i & 0b100 == 1 ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : 0;
+
+		glNormal3f(-1.0f, 0.0f, 0.0f);
+		for (int i = 0; i < 8; i++) i & 0b100 == 0 ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : 0;
+		glEnd();
+	}
 	Cube(int x, int y, int z)
 	{
 		GLfloat xLower = x * 0.2f - 0.1f;
@@ -72,7 +95,11 @@ public:
 		GLfloat yUpper = y * 0.2f + 0.1f;
 		GLfloat zLower = z * 0.2f - 0.1f;
 		GLfloat zUpper = z * 0.2f + 0.1f;
-		vertices[0]
+		for (int i = 0; i < 8; i++) {
+			vertices[i].x = i & 0b100 == 0 ? xLower : xUpper;
+			vertices[i].y = i  &0b10 == 0 ? yLower : yUpper;
+			vertices[i].z = i & 0b1 == 0 ? zLower : zUpper;
+		}
 	}
 };
 class Platform

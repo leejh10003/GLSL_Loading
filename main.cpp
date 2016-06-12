@@ -13,46 +13,6 @@
 #include <bitset>
 
 using namespace std;
-
-void drawCube(float x, float y, float z) {
-	glBegin(GL_QUADS);
-	glNormal3f(0.0f, 0.0f, 1.0f);
-	glVertex3f(x + 0.1f, y + 0.1f, z + 0.1f);
-	glVertex3f(x + 0.1f, y - 0.1f, z + 0.1f);
-	glVertex3f(x - 0.1f, y - 0.1f, z + 0.1f);
-	glVertex3f(x - 0.1f, y + 0.1f, z + 0.1f);
-	glNormal3f(0.0f, 0.0f, -1.0f);
-
-	glVertex3f(x + 0.1f, y + 0.1f, z - 0.1f);
-	glVertex3f(x + 0.1f, y - 0.1f, z - 0.1f);
-	glVertex3f(x - 0.1f, y - 0.1f, z - 0.1f);
-	glVertex3f(x - 0.1f, y + 0.1f, z - 0.1f);
-	glNormal3f(0.0f, 1.0f, 0.0f);
-
-	glVertex3f(x + 0.1f, y + 0.1f, z + 0.1f);
-	glVertex3f(x + 0.1f, y + 0.1f, z - 0.1f);
-	glVertex3f(x - 0.1f, y + 0.1f, z - 0.1f);
-	glVertex3f(x - 0.1f, y + 0.1f, z + 0.1f);
-	glNormal3f(-1.0f, 0.0f, 0.0f);
-
-	glVertex3f(x - 0.1f, y + 0.1f, z + 0.1f);
-	glVertex3f(x - 0.1f, y + 0.1f, z - 0.1f);
-	glVertex3f(x - 0.1f, y - 0.1f, z - 0.1f);
-	glVertex3f(x - 0.1f, y - 0.1f, z + 0.1f);
-	glNormal3f(1.0f, 0.0f, 0.0f);
-
-	glVertex3f(x + 0.1f, y + 0.1f, z + 0.1f);
-	glVertex3f(x + 0.1f, y + 0.1f, z - 0.1f);
-	glVertex3f(x + 0.1f, y - 0.1f, z - 0.1f);
-	glVertex3f(x + 0.1f, y - 0.1f, z + 0.1f);
-	glNormal3f(0.0f, -1.0f, 0.0f);
-
-	glVertex3f(x + 0.1f, y - 0.1f, z + 0.1f);
-	glVertex3f(x + 0.1f, y - 0.1f, z - 0.1f);
-	glVertex3f(x - 0.1f, y - 0.1f, z - 0.1f);
-	glVertex3f(-0.1f, y - 0.1f, z + 0.1f);
-	glEnd();
-}
 //-----------------------------------------------------------------------------
 typedef enum CoordinateDirection {
 	x = 0b100,
@@ -76,7 +36,6 @@ protected:
 public:
 	void draw()
 	{
-
 		glBegin(GL_QUADS);
 		glNormal3f(0.0f, 0.0f, 1.0f);
 		glVertex3f(vertices[7].x, vertices[7].y, vertices[7].z);

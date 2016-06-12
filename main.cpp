@@ -53,13 +53,31 @@ void drawCube(float x, float y, float z) {
 	glEnd();
 }
 //-----------------------------------------------------------------------------
+struct Vertex
+{
+	GLfloat x;
+	GLfloat y;
+	GLfloat z;
+};
 class Cube
 {
-	
+protected:
+	Vertex vertices[8];
+public:
+	Cube(int x, int y, int z)
+	{
+		GLfloat xLower = x * 0.2f - 0.1f;
+		GLfloat xUpper = x * 0.2f + 0.1f;
+		GLfloat yLower = y * 0.2f - 0.1f;
+		GLfloat yUpper = y * 0.2f + 0.1f;
+		GLfloat zLower = z * 0.2f - 0.1f;
+		GLfloat zUpper = z * 0.2f + 0.1f;
+		vertices[0]
+	}
 };
 class Platform
 {
-public:
+protected:
 	GLint xStart;
 	GLint yStart;
 	GLint zStart;
@@ -67,6 +85,7 @@ public:
 	GLint yEnd;
 	GLint zEnd;
 	vector<vector<vector<Cube>>> cubes;
+public:
 	void drawPlatform()
 	{
 		for(int i = xStart; i < xEnd; i++)
@@ -76,9 +95,14 @@ public:
 				}
 	}
 	Platform(GLint xStart, GLint xEnd, GLint yStart, GLint yEnd, GLint zStart, GLint zEnd) : xStart(xStart), xEnd(xEnd + 1), yStart(yStart), yEnd(yEnd + 1), zStart(zStart), zEnd(zEnd + 1) {
-		for(int i = 0; i < xEnd - xStart; i++)
-			for(int j = 0; j < yEnd - yStart; j++)
-				for(int k = 0; k < zEnd - zStart; k++)
+		for (int i = 0; i < xEnd - xStart; i++) {
+			cubes.push_back(vector<vector<Cube>>());
+			for (int j = 0; j < yEnd - yStart; j++) {
+				cubes[i].push_back(vector<Cube>());
+				for (int k = 0; k < zEnd - zStart; k++)
+					cubes[i][j].push_back(Cube(xStart + i, yStart + j, zStart + k));
+			}
+		}
 
 	}
 };

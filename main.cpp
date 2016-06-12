@@ -55,7 +55,7 @@ void drawCube(float x, float y, float z) {
 //-----------------------------------------------------------------------------
 class Cube
 {
-
+	
 };
 class Platform
 {
@@ -66,6 +66,7 @@ public:
 	GLint xEnd;
 	GLint yEnd;
 	GLint zEnd;
+	vector<vector<vector<Cube>>> cubes;
 	void drawPlatform()
 	{
 		for(int i = xStart; i < xEnd; i++)
@@ -75,6 +76,10 @@ public:
 				}
 	}
 	Platform(GLint xStart, GLint xEnd, GLint yStart, GLint yEnd, GLint zStart, GLint zEnd) : xStart(xStart), xEnd(xEnd + 1), yStart(yStart), yEnd(yEnd + 1), zStart(zStart), zEnd(zEnd + 1) {
+		for(int i = 0; i < xEnd - xStart; i++)
+			for(int j = 0; j < yEnd - yStart; j++)
+				for(int k = 0; k < zEnd - zStart; k++)
+
 	}
 };
 class Body
@@ -239,7 +244,7 @@ public:
 	virtual void OnInit()
 	{
 		glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
-		glShadeModel(GL_SMOOTH);
+		glShadeModel(GL_FLAT);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glEnable(GL_COLOR_MATERIAL);

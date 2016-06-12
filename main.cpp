@@ -1,9 +1,10 @@
 //=============================================================================
 // Sample Application for GLEW, and cwc Application/Window class using freeglut
 //=============================================================================
-
+#define _USE_MATH_DEFINES
 #include <GL/glew.h>
 #include <GL/freeglut.h>
+#include <cmath>
 #include "glApplication.h"
 #include "glutWindow.h"
 #include <iostream>
@@ -12,6 +13,7 @@
 #include "glsl.h"
 #include <bitset>
 
+//GLfloat angle = 1.0f;
 using namespace std;
 //-----------------------------------------------------------------------------
 typedef enum CoordinateDirection {
@@ -71,7 +73,8 @@ void drawCube(float x, float y, float z) {
 class Cube
 {
 protected:
-	Vertex vertices[8];
+	Vertex originalVertices[8];
+	Vertex translatedVertices[8];
 	GLfloat r;
 	GLfloat g;
 	GLfloat b;
@@ -83,55 +86,55 @@ public:
 		if (rendering[0]) {
 			glNormal3f(0.0f, 0.0f, 1.0f);
 			glColor4f(r, g, b, 1.0f);
-			glVertex3f(vertices[7].x, vertices[7].y, vertices[7].z);
-			glVertex3f(vertices[5].x, vertices[5].y, vertices[5].z);
-			glVertex3f(vertices[1].x, vertices[1].y, vertices[1].z);
-			glVertex3f(vertices[3].x, vertices[3].y, vertices[3].z);
+			glVertex3f(translatedVertices[7].x, translatedVertices[7].y, translatedVertices[7].z);
+			glVertex3f(translatedVertices[5].x, translatedVertices[5].y, translatedVertices[5].z);
+			glVertex3f(translatedVertices[1].x, translatedVertices[1].y, translatedVertices[1].z);
+			glVertex3f(translatedVertices[3].x, translatedVertices[3].y, translatedVertices[3].z);
 		}
 
 		if (rendering[1]) {
 			glNormal3f(0.0f, 0.0f, -1.0f);
 			glColor4f(r, g, b, 1.0f);
-			glVertex3f(vertices[6].x, vertices[6].y, vertices[6].z);
-			glVertex3f(vertices[4].x, vertices[4].y, vertices[4].z);
-			glVertex3f(vertices[0].x, vertices[0].y, vertices[0].z);
-			glVertex3f(vertices[2].x, vertices[2].y, vertices[2].z);
+			glVertex3f(translatedVertices[6].x, translatedVertices[6].y, translatedVertices[6].z);
+			glVertex3f(translatedVertices[4].x, translatedVertices[4].y, translatedVertices[4].z);
+			glVertex3f(translatedVertices[0].x, translatedVertices[0].y, translatedVertices[0].z);
+			glVertex3f(translatedVertices[2].x, translatedVertices[2].y, translatedVertices[2].z);
 		}
 
 		if (rendering[2]) {
 			glNormal3f(0.0f, 1.0f, 0.0f);
 			glColor4f(r, g, b, 1.0f);
-			glVertex3f(vertices[7].x, vertices[7].y, vertices[7].z);
-			glVertex3f(vertices[6].x, vertices[6].y, vertices[6].z);
-			glVertex3f(vertices[2].x, vertices[2].y, vertices[2].z);
-			glVertex3f(vertices[3].x, vertices[3].y, vertices[3].z);
+			glVertex3f(translatedVertices[7].x, translatedVertices[7].y, translatedVertices[7].z);
+			glVertex3f(translatedVertices[6].x, translatedVertices[6].y, translatedVertices[6].z);
+			glVertex3f(translatedVertices[2].x, translatedVertices[2].y, translatedVertices[2].z);
+			glVertex3f(translatedVertices[3].x, translatedVertices[3].y, translatedVertices[3].z);
 		}
 
 		if (rendering[3]) {
 			glNormal3f(-1.0f, 0.0f, 0.0f);
 			glColor4f(r, g, b, 1.0f);
-			glVertex3f(vertices[3].x, vertices[3].y, vertices[3].z);
-			glVertex3f(vertices[2].x, vertices[2].y, vertices[2].z);
-			glVertex3f(vertices[0].x, vertices[0].y, vertices[0].z);
-			glVertex3f(vertices[1].x, vertices[1].y, vertices[1].z);
+			glVertex3f(translatedVertices[3].x, translatedVertices[3].y, translatedVertices[3].z);
+			glVertex3f(translatedVertices[2].x, translatedVertices[2].y, translatedVertices[2].z);
+			glVertex3f(translatedVertices[0].x, translatedVertices[0].y, translatedVertices[0].z);
+			glVertex3f(translatedVertices[1].x, translatedVertices[1].y, translatedVertices[1].z);
 		}
 
 		if (rendering[4]) {
 			glNormal3f(1.0f, 0.0f, 0.0f);
 			glColor4f(r, g, b, 1.0f);
-			glVertex3f(vertices[7].x, vertices[7].y, vertices[7].z);
-			glVertex3f(vertices[6].x, vertices[6].y, vertices[6].z);
-			glVertex3f(vertices[4].x, vertices[4].y, vertices[4].z);
-			glVertex3f(vertices[5].x, vertices[5].y, vertices[5].z);
+			glVertex3f(translatedVertices[7].x, translatedVertices[7].y, translatedVertices[7].z);
+			glVertex3f(translatedVertices[6].x, translatedVertices[6].y, translatedVertices[6].z);
+			glVertex3f(translatedVertices[4].x, translatedVertices[4].y, translatedVertices[4].z);
+			glVertex3f(translatedVertices[5].x, translatedVertices[5].y, translatedVertices[5].z);
 		}
 
 		if (rendering[5]) {
 			glNormal3f(0.0f, -1.0f, 0.0f);
 			glColor4f(r, g, b, 1.0f);
-			glVertex3f(vertices[5].x, vertices[5].y, vertices[5].z);
-			glVertex3f(vertices[4].x, vertices[4].y, vertices[4].z);
-			glVertex3f(vertices[0].x, vertices[0].y, vertices[0].z);
-			glVertex3f(vertices[1].x, vertices[1].y, vertices[1].z);
+			glVertex3f(translatedVertices[5].x, translatedVertices[5].y, translatedVertices[5].z);
+			glVertex3f(translatedVertices[4].x, translatedVertices[4].y, translatedVertices[4].z);
+			glVertex3f(translatedVertices[0].x, translatedVertices[0].y, translatedVertices[0].z);
+			glVertex3f(translatedVertices[1].x, translatedVertices[1].y, translatedVertices[1].z);
 		}
 		glEnd();
 	}
@@ -146,9 +149,21 @@ public:
 		for (int i = 0; i < 6; i++)
 			rendering[i] = renderOrNot[i];
 		for (char i = 0; i < 8; i++) {
-			vertices[i].x = ((bitset<3>(i) & bitset<3>(CoordDirec::x)) != 0 ? xUpper : xLower);
-			vertices[i].y = ((bitset<3>(i) & bitset<3>(CoordDirec::y)) != 0 ? yUpper : yLower);
-			vertices[i].z = ((bitset<3>(i) & bitset<3>(CoordDirec::z)) != 0 ? zUpper : zLower);
+			originalVertices[i].x = ((bitset<3>(i) & bitset<3>(CoordDirec::x)) != 0 ? xUpper : xLower);
+			originalVertices[i].y = ((bitset<3>(i) & bitset<3>(CoordDirec::y)) != 0 ? yUpper : yLower);
+			originalVertices[i].z = ((bitset<3>(i) & bitset<3>(CoordDirec::z)) != 0 ? zUpper : zLower);
+			translatedVertices[i].x = originalVertices[i].x;
+			translatedVertices[i].y = originalVertices[i].y;
+			translatedVertices[i].z = originalVertices[i].z;
+		}
+	}
+	void rotate(GLfloat angle)
+	{
+		for (int i = 0; i < 8; i++) {
+			GLfloat xValue = originalVertices[i].x;
+			GLfloat zValue = originalVertices[i].z;
+			translatedVertices[i].x = xValue * cosf(angle / 180.f * M_PI) - zValue * sinf(angle / 180.f * M_PI);
+			translatedVertices[i].z = zValue * cosf(angle / 180.f * M_PI) + xValue * sinf(angle / 180.f * M_PI);
 		}
 	}
 };
@@ -174,6 +189,14 @@ public:
 					cubes[i - xStart][j - yStart][k - zStart].draw();
 				}
 	}
+	void rotate(GLfloat angle)
+	{
+		for (int i = xStart; i < xEnd; i++)
+			for (int j = yStart; j < yEnd; j++)
+				for (int k = zStart; k < zEnd; k++) {
+					cubes[i - xStart][j - yStart][k - zStart].rotate(angle);
+				}
+	}
 	Platform(GLint xStart, GLint xEnd, GLint yStart, GLint yEnd, GLint zStart, GLint zEnd, GLfloat r, GLfloat g, GLfloat b, bool renderOrNot[6]) : r(r), g(g), b(b), xStart(xStart), xEnd(xEnd + 1), yStart(yStart), yEnd(yEnd + 1), zStart(zStart), zEnd(zEnd + 1) {
 		for (int i = 0; i < xEnd - xStart + 1; i++) {
 			cubes.push_back(vector<vector<Cube>>());
@@ -193,6 +216,7 @@ protected:
 	GLfloat r;
 	GLfloat g;
 	GLfloat b;
+	GLfloat angle = 0.0f;
 public:
 	vector<Platform> platforms;
 	Body& addPlatform(vector<int> addPlatform, bool renderOrNot[6])
@@ -210,6 +234,32 @@ public:
 			platforms[i].drawPlatform();
 	}
 	Body(GLfloat r, GLfloat g, GLfloat b) : r(r), g(g), b(b) {}
+	void rotate(GLfloat angleDisplacement) {
+		angle += angleDisplacement;
+		for (int i = 0; i < (int)platforms.size(); ++i)
+			platforms[i].rotate(angle);
+	}
+	void autoRotate()
+	{
+		if ((angle >= 0.0f && angle < 45.0f) || (angle >= 90.0f && angle < 135.0f) || (angle >= 180.0f && angle < 225.0f) || (angle >= 270.0f && angle < 315.0f))
+			angle -= 1.0f;
+		else if ((angle >= 45.0f && angle < 90.0f) || (angle >= 135.0f && angle < 180.0f) || (angle >= 225.0f && angle < 270.0f) || (angle >= 315.0f && angle < 360.0f))
+			angle += 1.0f;
+		if (angle - 90.0f <= 1.0f && angle - 90.0f >= -1.0f) angle = 90.0f;
+		else if (angle - 180.0f <= 1.0f && angle - 180.0f >= -1.0f) angle = 180.0f;
+		else if (angle - 270.0f <= 1.0f && angle - 270.0f >= -1.0f) angle = 270.0f;
+		else if (angle <= 1.0f || angle - 360.0f >= -1.0f)  angle = 0.0f;
+		for (int i = 0; i < (int)platforms.size(); ++i)
+			platforms[i].rotate(angle);
+	}
+	void angleStabilaze()
+	{
+		for (;angle < 0.0f || angle >= 360.0f;)
+			if (angle >= 360.0f)
+				angle -= 360.0f;
+			else if (angle < 0.0f)
+				angle += 360.0f;
+	}
 };
 class myWindow : public cwc::glutWindow
 {
@@ -217,7 +267,6 @@ protected:
 	cwc::glShaderManager SM;
 	cwc::glShader *shader;
 	vector<Body> bodies;
-	GLfloat angle = 0.0f;
 	bool pressed = 0;
 public:
 	myWindow() {}
@@ -234,12 +283,7 @@ public:
 		glLoadIdentity();
 		if (shader) shader->begin();
 		//draw rotating platforms
-		glPushMatrix();
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glRotatef(angle, 0.0f, -1.0f, 0.0f);
 		bodies[0].drawPlatforms();
-		glPopMatrix();
 		//draw blue static platforms
 		bodies[1].drawPlatforms();
 		bodies[2].drawPlatforms();
@@ -253,16 +297,8 @@ public:
 	}
 
 	virtual void OnIdle() {
-		if (pressed == false) {
-			if ((angle >= 0.0f && angle < 45.0f) || (angle >= 90.0f && angle < 135.0f) || (angle >= 180.0f && angle < 225.0f) || (angle >= 270.0f && angle < 315.0f))
-				angle -= 1.0f;
-			else if ((angle >= 45.0f && angle < 90.0f) || (angle >= 135.0f && angle < 180.0f) || (angle >= 225.0f && angle < 270.0f) || (angle >= 315.0f && angle < 360.0f))
-				angle += 1.0f;
-			if (angle - 90.0f <= 1.0f && angle - 90.0f >= -1.0f) angle = 90.0f;
-			else if (angle - 180.0f <= 1.0f && angle - 180.0f >= -1.0f) angle = 180.0f;
-			else if (angle - 270.0f <= 1.0f && angle - 270.0f >= -1.0f) angle = 270.0f;
-			else if (angle <= 1.0f || angle - 360.0f >= -1.0f)  angle = 0.0f;
-		}
+		if(pressed == false)
+			bodies[0].autoRotate();
 	}
 
 	// When OnInit is called, a render context (in this case GLUT-Window) 
@@ -327,12 +363,12 @@ public:
 		}
 		else if (cAscii == 'A' || cAscii == 'a')
 		{
-			angle -= 5.0f;
+			bodies[0].rotate(-5.0f);
 			pressed = true;
 		}
 		else if (cAscii == 'D' || cAscii == 'd')
 		{
-			angle += 5.0f;
+			bodies[0].rotate(5.0f);
 			pressed = true;
 		}
 	};
@@ -349,11 +385,7 @@ public:
 		}
 		else if (cAscii == 'A' || cAscii == 'a' || cAscii == 'D' || cAscii == 'd')
 		{
-			for (;angle < 0.0f || angle >= 360.0f;)
-				if (angle >= 360.0f)
-					angle -= 360.0f;
-				else if (angle < 0.0f)
-					angle += 360.0f;
+			bodies[0].angleStabilaze();
 			pressed = false;
 		}
 	};

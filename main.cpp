@@ -10,6 +10,7 @@
 #include <list>
 #include <vector>
 #include "glsl.h"
+#include <bitset>
 
 using namespace std;
 
@@ -78,22 +79,40 @@ public:
 
 		glBegin(GL_QUADS);
 		glNormal3f(0.0f, 0.0f, 1.0f);
-		for (int i = 0; i < 8; i++) i & CoordDirec::z == bigger ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : NULL;
+		glVertex3f(vertices[7].x, vertices[7].y, vertices[7].z);
+		glVertex3f(vertices[5].x, vertices[5].y, vertices[5].z);
+		glVertex3f(vertices[1].x, vertices[1].y, vertices[1].z);
+		glVertex3f(vertices[3].x, vertices[3].y, vertices[3].z);
 
 		glNormal3f(0.0f, 0.0f, -1.0f);
-		for (int i = 0; i < 8; i++) i & CoordDirec::z == smaller ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : NULL;
+		glVertex3f(vertices[6].x, vertices[6].y, vertices[6].z);
+		glVertex3f(vertices[4].x, vertices[4].y, vertices[4].z);
+		glVertex3f(vertices[0].x, vertices[0].y, vertices[0].z);
+		glVertex3f(vertices[2].x, vertices[2].y, vertices[2].z);
 
 		glNormal3f(0.0f, 1.0f, 0.0f);
-		for (int i = 0; i < 8; i++) i & CoordDirec::y == bigger ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : NULL;
-
-		glNormal3f(0.0f, -1.0f, 0.0f);
-		for (int i = 0; i < 8; i++) i & CoordDirec::y == smaller ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : NULL;
-
-		glNormal3f(1.0f, 0.0f, 0.0f);
-		for (int i = 0; i < 8; i++) i & CoordDirec::x == bigger ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : NULL;
+		glVertex3f(vertices[7].x, vertices[7].y, vertices[7].z);
+		glVertex3f(vertices[6].x, vertices[6].y, vertices[6].z);
+		glVertex3f(vertices[2].x, vertices[2].y, vertices[2].z);
+		glVertex3f(vertices[3].x, vertices[3].y, vertices[3].z);
 
 		glNormal3f(-1.0f, 0.0f, 0.0f);
-		for (int i = 0; i < 8; i++) i & CoordDirec::x == smaller ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : NULL;
+		glVertex3f(vertices[3].x, vertices[3].y, vertices[3].z);
+		glVertex3f(vertices[2].x, vertices[2].y, vertices[2].z);
+		glVertex3f(vertices[0].x, vertices[0].y, vertices[0].z);
+		glVertex3f(vertices[1].x, vertices[1].y, vertices[1].z);
+
+		glNormal3f(1.0f, 0.0f, 0.0f);
+		glVertex3f(vertices[7].x, vertices[7].y, vertices[7].z);
+		glVertex3f(vertices[6].x, vertices[6].y, vertices[6].z);
+		glVertex3f(vertices[4].x, vertices[4].y, vertices[4].z);
+		glVertex3f(vertices[5].x, vertices[5].y, vertices[5].z);
+
+		glNormal3f(0.0f, -1.0f, 0.0f);
+		glVertex3f(vertices[5].x, vertices[5].y, vertices[5].z);
+		glVertex3f(vertices[4].x, vertices[4].y, vertices[4].z);
+		glVertex3f(vertices[0].x, vertices[0].y, vertices[0].z);
+		glVertex3f(vertices[1].x, vertices[1].y, vertices[1].z);
 		glEnd();
 	}
 	Cube(int x, int y, int z)
@@ -104,11 +123,16 @@ public:
 		GLfloat yUpper = y * 0.2f + 0.1f;
 		GLfloat zLower = z * 0.2f - 0.1f;
 		GLfloat zUpper = z * 0.2f + 0.1f;
-		for (int i = 0; i < 8; i++) {
-			vertices[i].x = i & CoordDirec::x == 0 ? xLower : xUpper;
-			vertices[i].y = i & CoordDirec::y == 0 ? yLower : yUpper;
-			vertices[i].z = i & CoordDirec::z == 0 ? zLower : zUpper;
+		for (char i = 0; i < 8; i++) {
+			vertices[i].x = ((bitset<3>(i) & bitset<3>(CoordDirec::x)) != 0 ? xUpper : xLower);
+			vertices[i].y = ((bitset<3>(i) & bitset<3>(CoordDirec::y)) != 0 ? yUpper : yLower);
+			vertices[i].z = ((bitset<3>(i) & bitset<3>(CoordDirec::z)) != 0 ? zUpper : zLower);
 		}
+	}
+	void printVertices()
+	{
+		for (int i = 0; i < 8; i++)
+			cout << "(" << vertices[i].x << ", " << vertices[i].y << ", " << vertices[i].z << ")" << endl;
 	}
 };
 class Platform
@@ -124,19 +148,20 @@ protected:
 public:
 	void drawPlatform()
 	{
-		for(int i = xStart; i < xEnd; i++)
-			for(int j = yStart; j < yEnd; j++)
-				for (int k = zStart; k < zEnd; k++){
-					drawCube(i * 0.2f, j * 0.2f, k * 0.2f);
+		for(int i = xStart; i < xEnd ; i++)
+			for(int j = yStart; j < yEnd ; j++)
+				for (int k = zStart; k < zEnd ; k++){
+					cubes[i - xStart][j - yStart][k - zStart].draw();
 				}
 	}
 	Platform(GLint xStart, GLint xEnd, GLint yStart, GLint yEnd, GLint zStart, GLint zEnd) : xStart(xStart), xEnd(xEnd + 1), yStart(yStart), yEnd(yEnd + 1), zStart(zStart), zEnd(zEnd + 1) {
-		for (int i = 0; i < xEnd - xStart; i++) {
+		for (int i = 0; i < xEnd - xStart + 1; i++) {
 			cubes.push_back(vector<vector<Cube>>());
-			for (int j = 0; j < yEnd - yStart; j++) {
+			for (int j = 0; j < yEnd - yStart + 1; j++) {
 				cubes[i].push_back(vector<Cube>());
-				for (int k = 0; k < zEnd - zStart; k++)
+				for (int k = 0; k < zEnd - zStart + 1; k++) {
 					cubes[i][j].push_back(Cube(xStart + i, yStart + j, zStart + k));
+				}
 			}
 		}
 

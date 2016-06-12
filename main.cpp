@@ -53,6 +53,10 @@ void drawCube(float x, float y, float z) {
 	glEnd();
 }
 //-----------------------------------------------------------------------------
+class Cube
+{
+
+};
 class Platform
 {
 public:

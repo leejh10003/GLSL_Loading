@@ -19,10 +19,6 @@ typedef enum CoordinateDirection {
 	y = 0b10,
 	z = 0b1
 }CoordDirec;
-typedef enum BiggerSmaller {
-	smaller = 0,
-	bigger = 1
-}BigSmall;
 struct Vertex
 {
 	GLfloat x;

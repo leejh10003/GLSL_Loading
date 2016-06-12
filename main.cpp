@@ -53,6 +53,15 @@ void drawCube(float x, float y, float z) {
 	glEnd();
 }
 //-----------------------------------------------------------------------------
+typedef enum CoordinateDirection {
+	x = 0b100,
+	y = 0b10,
+	z = 0b1
+}CoordDirec;
+typedef enum BiggerSmaller {
+	smaller = 0,
+	bigger = 1
+}BigSmall;
 struct Vertex
 {
 	GLfloat x;
@@ -69,22 +78,22 @@ public:
 
 		glBegin(GL_QUADS);
 		glNormal3f(0.0f, 0.0f, 1.0f);
-		for(int i = 0; i < 8; i++) i & 0b1 == 1 ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : 0;
+		for (int i = 0; i < 8; i++) i & CoordDirec::z == bigger ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : NULL;
 
 		glNormal3f(0.0f, 0.0f, -1.0f);
-		for (int i = 0; i < 8; i++) i & 0b1 == 0 ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : 0;
+		for (int i = 0; i < 8; i++) i & CoordDirec::z == smaller ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : NULL;
 
 		glNormal3f(0.0f, 1.0f, 0.0f);
-		for (int i = 0; i < 8; i++) i & 0b10 == 1 ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : 0;
+		for (int i = 0; i < 8; i++) i & CoordDirec::y == bigger ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : NULL;
 
 		glNormal3f(0.0f, -1.0f, 0.0f);
-		for (int i = 0; i < 8; i++) i & 0b10 == 0 ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : 0;
+		for (int i = 0; i < 8; i++) i & CoordDirec::y == smaller ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : NULL;
 
 		glNormal3f(1.0f, 0.0f, 0.0f);
-		for (int i = 0; i < 8; i++) i & 0b100 == 1 ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : 0;
+		for (int i = 0; i < 8; i++) i & CoordDirec::x == bigger ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : NULL;
 
 		glNormal3f(-1.0f, 0.0f, 0.0f);
-		for (int i = 0; i < 8; i++) i & 0b100 == 0 ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : 0;
+		for (int i = 0; i < 8; i++) i & CoordDirec::x == smaller ? glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z) : NULL;
 		glEnd();
 	}
 	Cube(int x, int y, int z)
@@ -96,9 +105,9 @@ public:
 		GLfloat zLower = z * 0.2f - 0.1f;
 		GLfloat zUpper = z * 0.2f + 0.1f;
 		for (int i = 0; i < 8; i++) {
-			vertices[i].x = i & 0b100 == 0 ? xLower : xUpper;
-			vertices[i].y = i  &0b10 == 0 ? yLower : yUpper;
-			vertices[i].z = i & 0b1 == 0 ? zLower : zUpper;
+			vertices[i].x = i & CoordDirec::x == 0 ? xLower : xUpper;
+			vertices[i].y = i & CoordDirec::y == 0 ? yLower : yUpper;
+			vertices[i].z = i & CoordDirec::z == 0 ? zLower : zUpper;
 		}
 	}
 };

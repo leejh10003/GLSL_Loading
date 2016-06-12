@@ -31,55 +31,16 @@ struct Vertex
 	GLfloat y;
 	GLfloat z;
 };
-void drawCube(float x, float y, float z) {
-	glBegin(GL_QUADS);
-	glNormal3f(0.0f, 0.0f, 1.0f);
-	glVertex3f(x + 0.1f, y + 0.1f, z + 0.1f);
-	glVertex3f(x + 0.1f, y - 0.1f, z + 0.1f);
-	glVertex3f(x - 0.1f, y - 0.1f, z + 0.1f);
-	glVertex3f(x - 0.1f, y + 0.1f, z + 0.1f);
-	glNormal3f(0.0f, 0.0f, -1.0f);
-
-	glVertex3f(x + 0.1f, y + 0.1f, z - 0.1f);
-	glVertex3f(x + 0.1f, y - 0.1f, z - 0.1f);
-	glVertex3f(x - 0.1f, y - 0.1f, z - 0.1f);
-	glVertex3f(x - 0.1f, y + 0.1f, z - 0.1f);
-	glNormal3f(0.0f, 1.0f, 0.0f);
-
-	glVertex3f(x + 0.1f, y + 0.1f, z + 0.1f);
-	glVertex3f(x + 0.1f, y + 0.1f, z - 0.1f);
-	glVertex3f(x - 0.1f, y + 0.1f, z - 0.1f);
-	glVertex3f(x - 0.1f, y + 0.1f, z + 0.1f);
-	glNormal3f(-1.0f, 0.0f, 0.0f);
-
-	glVertex3f(x - 0.1f, y + 0.1f, z + 0.1f);
-	glVertex3f(x - 0.1f, y + 0.1f, z - 0.1f);
-	glVertex3f(x - 0.1f, y - 0.1f, z - 0.1f);
-	glVertex3f(x - 0.1f, y - 0.1f, z + 0.1f);
-	glNormal3f(1.0f, 0.0f, 0.0f);
-
-	glVertex3f(x + 0.1f, y + 0.1f, z + 0.1f);
-	glVertex3f(x + 0.1f, y + 0.1f, z - 0.1f);
-	glVertex3f(x + 0.1f, y - 0.1f, z - 0.1f);
-	glVertex3f(x + 0.1f, y - 0.1f, z + 0.1f);
-	glNormal3f(0.0f, -1.0f, 0.0f);
-
-	glVertex3f(x + 0.1f, y - 0.1f, z + 0.1f);
-	glVertex3f(x + 0.1f, y - 0.1f, z - 0.1f);
-	glVertex3f(x - 0.1f, y - 0.1f, z - 0.1f);
-	glVertex3f(-0.1f, y - 0.1f, z + 0.1f);
-	glEnd();
-}
 class Cube
 {
 protected:
 	Vertex originalVertices[8];
-	Vertex translatedVertices[8];
 	GLfloat r;
 	GLfloat g;
 	GLfloat b;
 	bool rendering[6] = { false, false, false, false, false, false};
 public:
+	Vertex translatedVertices[8];
 	void draw()
 	{
 		glBegin(GL_QUADS);
@@ -207,7 +168,15 @@ public:
 				}
 			}
 		}
-
+	}
+	vector<Cube*> getCubes()
+	{
+		vector<Cube*> forReturn;
+		for (int i = xStart; i < xEnd; i++)
+			for (int j = yStart; j < yEnd; j++)
+				for (int k = zStart; k < zEnd; k++) 
+					forReturn.push_back(&cubes[i - xStart][j - yStart][k - zStart]);
+		return forReturn;
 	}
 };
 class Body
@@ -259,6 +228,15 @@ public:
 				angle -= 360.0f;
 			else if (angle < 0.0f)
 				angle += 360.0f;
+	}
+	vector<Cube*> getCubes()
+	{
+		vector<Cube*> forReturn;
+		for (int i = 0; i < (int)platforms.size(); ++i) {
+			vector<Cube*>temp = platforms[i].getCubes();
+			forReturn.insert(forReturn.end(), temp.begin(), temp.end());
+		}
+		return forReturn;
 	}
 };
 class myWindow : public cwc::glutWindow
@@ -346,7 +324,13 @@ public:
 		shader = SM.loadfromFile("vertexshader.txt", "fragmentshader.txt"); // load (and compile, link) from file
 		if (shader == 0)
 			std::cout << "Error Loading, compiling or linking shader\n";
-
+		//gettingVertices example
+		vector<Cube*> thirdBodysCubes = bodies[3].getCubes();
+		for (int i = 0; i < thirdBodysCubes.size(); i++)
+			for (int j = 0; j < 8; j++)
+				cout << "("<< thirdBodysCubes[i]->translatedVertices[j].x << ", "
+				<< thirdBodysCubes[i]->translatedVertices[j].y << ", "
+				<< thirdBodysCubes[i]->translatedVertices[j].z << ")" << endl;
 	}
 
 	virtual void OnResize(int w, int h) {}

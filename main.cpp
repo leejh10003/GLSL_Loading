@@ -324,6 +324,7 @@ public:
 		shader = SM.loadfromFile("vertexshader.txt", "fragmentshader.txt"); // load (and compile, link) from file
 		if (shader == 0)
 			std::cout << "Error Loading, compiling or linking shader\n";
+		
 		//gettingVertices example
 		vector<Cube*> thirdBodysCubes = bodies[3].getCubes();
 		for (int i = 0; i < thirdBodysCubes.size(); i++)
@@ -332,6 +333,19 @@ public:
 				<< thirdBodysCubes[i]->translatedVertices[j].y << ", "
 				<< thirdBodysCubes[i]->translatedVertices[j].z << ")" << endl;
 	}
+
+	virtual void Projcetion(void) {
+
+		//apply gluproject all vertexs to know their window positions.
+
+		//length compare between CM of shpere and vertexs
+		//if result < some value, then the face(or paltform) that has that vertex is safe to move on.
+
+		// I wanna know return value of this function is face? platform?
+
+
+	}
+
 
 	virtual void OnResize(int w, int h) {}
 	virtual void OnClose(void) {}

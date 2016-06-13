@@ -258,6 +258,7 @@ public:
 		glRotatef(45.0f, .0f, -1.0f, 0.0f);
 		glOrtho(-1.5, 1.5, -1.5, 1.5, -1.5, 1.5);
 		glMatrixMode(GL_MODELVIEW);
+
 		glLoadIdentity();
 		if (shader) shader->begin();
 		//draw rotating platforms
@@ -275,8 +276,8 @@ public:
 	}
 
 	virtual void OnIdle() {
-		if(pressed == false)
-			bodies[0].autoRotate();
+		//if(pressed == false)
+		//	bodies[0].autoRotate();
 	}
 
 	// When OnInit is called, a render context (in this case GLUT-Window) 
@@ -324,33 +325,58 @@ public:
 		shader = SM.loadfromFile("vertexshader.txt", "fragmentshader.txt"); // load (and compile, link) from file
 		if (shader == 0)
 			std::cout << "Error Loading, compiling or linking shader\n";
-		
+		/*
 		//gettingVertices example
 		vector<Cube*> thirdBodysCubes = bodies[3].getCubes();
 		for (int i = 0; i < thirdBodysCubes.size(); i++)
 			for (int j = 0; j < 8; j++)
 				cout << "("<< thirdBodysCubes[i]->translatedVertices[j].x << ", "
 				<< thirdBodysCubes[i]->translatedVertices[j].y << ", "
-				<< thirdBodysCubes[i]->translatedVertices[j].z << ")" << endl;
+				<< thirdBodysCubes[i]->translatedVertices[j].z << ")" << endl;*/
 	}
 
-	virtual void Projcetion(void) {
+	virtual void Projection(void) {
 
 		//apply gluproject all vertexs to know their window positions.
 
 		//length compare between CM of shpere and vertexs
 		//if result < some value, then the face(or paltform) that has that vertex is safe to move on.
 
-		// I wanna know return value of this function is face? platform?
+		GLint viewport[4];
+		GLdouble modelview[16];
+		GLdouble projection[16];
+		
+		GLdouble winX, winY, winZ;
 
+		GLdouble posX, posY, posZ;
+		posX = 0.5; 
+		posY = 0.7; 
+		posZ = 3.0;
+
+		glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+		glGetDoublev(GL_PROJECTION_MATRIX, projection);
+		glGetIntegerv(GL_VIEWPORT, viewport);
+
+		cout << "original object pos : (" << posX << ", "
+			<< posY << ", "
+			<< posZ << ")" << endl;
+
+		int res = gluProject(posX, posY, posZ, modelview, projection, viewport, &winX, &winY, &winZ);
+		winY = viewport[1] - winY;
+		cout << "gluProject win pos : (" << winX << ", "
+			<< winY << ", "
+			<< winZ << ")" << endl;
 
 	}
 
 
 	virtual void OnResize(int w, int h) {}
 	virtual void OnClose(void) {}
-	virtual void OnMouseDown(int button, int x, int y) {}
 	virtual void OnMouseUp(int button, int x, int y) {}
+	virtual void OnMouseDown(int button, int x, int y) {
+		cout << "OnMouse Down : (" << x << ", "
+			<< y << ") "<< endl;
+	}
 	virtual void OnMouseWheel(int nWheelNumber, int nDirection, int x, int y) {}
 
 	virtual void OnKeyDown(int nKey, char cAscii)

@@ -284,8 +284,8 @@ public:
 	}
 
 	virtual void OnIdle() {
-		//if(pressed == false)
-		//	bodies[0].autoRotate();
+		if(pressed == false)
+			bodies[0].autoRotate();
 	}
 
 	// When OnInit is called, a render context (in this case GLUT-Window) 
@@ -386,7 +386,7 @@ public:
 					thirdBodysCubes[i]->translatedVertices[j].y,
 					thirdBodysCubes[i]->translatedVertices[j].z,
 					modelview, projection, viewport, &winX, &winY, &winZ);
-				//winY = viewport[1] - winY;
+				winY = ((double)viewport[3]) - winY;
 			
 				cout << "gluProject win pos : (" << winX << ", "
 					<< winY << ", "

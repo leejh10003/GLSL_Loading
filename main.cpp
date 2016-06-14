@@ -15,6 +15,10 @@
 
 //GLfloat angle = 1.0f;
 using namespace std;
+
+//minuk
+static int ballposX, ballposY;
+bool	check = true;
 //-----------------------------------------------------------------------------
 typedef enum CoordinateDirection {
 	x = 0b100,
@@ -258,6 +262,10 @@ public:
 		glRotatef(45.0f, .0f, -1.0f, 0.0f);
 		glOrtho(-1.5, 1.5, -1.5, 1.5, -1.5, 1.5);
 		glMatrixMode(GL_MODELVIEW);
+		if (check) {
+			Projection();
+			check = false;
+		}
 
 		glLoadIdentity();
 		if (shader) shader->begin();
@@ -312,7 +320,7 @@ public:
 		bodies.push_back(Body(1.0f, 0.5f, 0.5f));
 		bool render[6] = { true, true, true, true, true, true };
 		bool notRender[6] = { false, false, false, false, false, false };
-		bool exceptUpperRight[6] = { true, true, false, true, false, true};
+		bool exceptUpperRight[6] = { true, true, false, true, false, true };
 		bool upperRight[6] = { false, false, true, false, true, false };
 		bodies[0].addPlatform({ 0, 0, -4, 1, 0, 0 }, render)
 			.addPlatform({ 0, 3, 2, 2, 0, 0 }, render)
@@ -325,14 +333,6 @@ public:
 		shader = SM.loadfromFile("vertexshader.txt", "fragmentshader.txt"); // load (and compile, link) from file
 		if (shader == 0)
 			std::cout << "Error Loading, compiling or linking shader\n";
-		/*
-		//gettingVertices example
-		vector<Cube*> thirdBodysCubes = bodies[3].getCubes();
-		for (int i = 0; i < thirdBodysCubes.size(); i++)
-			for (int j = 0; j < 8; j++)
-				cout << "("<< thirdBodysCubes[i]->translatedVertices[j].x << ", "
-				<< thirdBodysCubes[i]->translatedVertices[j].y << ", "
-				<< thirdBodysCubes[i]->translatedVertices[j].z << ")" << endl;*/
 	}
 
 	virtual void Projection(void) {
@@ -345,27 +345,62 @@ public:
 		GLint viewport[4];
 		GLdouble modelview[16];
 		GLdouble projection[16];
-		
-		GLdouble winX, winY, winZ;
 
+		GLdouble winX, winY, winZ;
+		int res;
+		
 		GLdouble posX, posY, posZ;
-		posX = 0.5; 
-		posY = 0.7; 
+		posX = 0.5;
+		posY = 0.7;
 		posZ = 3.0;
 
 		glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
 		glGetDoublev(GL_PROJECTION_MATRIX, projection);
 		glGetIntegerv(GL_VIEWPORT, viewport);
+		for (int i = 0; i < 4; i++) {
+			printf("%d ", viewport[i]);
+		}
+		printf("<< view port \n");
 
-		cout << "original object pos : (" << posX << ", "
-			<< posY << ", "
-			<< posZ << ")" << endl;
+		for (int i = 0; i < 16; i++) {
+			printf("%e ", modelview[i]);
+		}
+		printf("<<modelview\n");
 
-		int res = gluProject(posX, posY, posZ, modelview, projection, viewport, &winX, &winY, &winZ);
-		winY = viewport[1] - winY;
-		cout << "gluProject win pos : (" << winX << ", "
-			<< winY << ", "
-			<< winZ << ")" << endl;
+		for (int i = 0; i < 16; i++) {
+			printf("%e ", projection[i]);
+		}
+		printf("<<modelview\n");
+
+
+		//gettingVertices example
+		vector<Cube*> thirdBodysCubes = bodies[3].getCubes();
+		for (int i = 0; i < thirdBodysCubes.size(); i++){
+			for (int j = 0; j < 8; j++) {
+				cout << "original object pos : (" << thirdBodysCubes[i]->translatedVertices[j].x << ", "
+					<< thirdBodysCubes[i]->translatedVertices[j].y << ", "
+					<< thirdBodysCubes[i]->translatedVertices[j].z << ")" << endl;
+
+				//get winXYZ
+				res = gluProject(thirdBodysCubes[i]->translatedVertices[j].x,
+					thirdBodysCubes[i]->translatedVertices[j].y,
+					thirdBodysCubes[i]->translatedVertices[j].z,
+					modelview, projection, viewport, &winX, &winY, &winZ);
+				//winY = viewport[1] - winY;
+			
+				cout << "gluProject win pos : (" << winX << ", "
+					<< winY << ", "
+					<< winZ << ")" << endl;
+
+				//error check
+				if (res == 0) {
+					printf("error\n");
+					break;
+				}
+			}
+		}
+
+
 
 	}
 
@@ -378,7 +413,6 @@ public:
 			<< y << ") "<< endl;
 	}
 	virtual void OnMouseWheel(int nWheelNumber, int nDirection, int x, int y) {}
-
 	virtual void OnKeyDown(int nKey, char cAscii)
 	{
 		if (cAscii == 27) // 0x1b = ESC

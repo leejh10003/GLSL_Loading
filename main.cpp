@@ -1,6 +1,7 @@
 //=============================================================================
 // Sample Application for GLEW, and cwc Application/Window class using freeglut
 //=============================================================================
+#include <Windows.h>
 #define _USE_MATH_DEFINES
 #include <GL/glew.h>
 #include <GL/freeglut.h>
@@ -12,6 +13,7 @@
 #include <vector>
 #include "glsl.h"
 #include <bitset>
+#include "physicsEngine.hpp"
 
 //GLfloat angle = 1.0f;
 using namespace std;
@@ -107,6 +109,7 @@ public:
 		GLfloat yUpper = y * 0.2f + 0.1f;
 		GLfloat zLower = z * 0.2f - 0.1f;
 		GLfloat zUpper = z * 0.2f + 0.1f;
+
 		for (int i = 0; i < 6; i++)
 			rendering[i] = renderOrNot[i];
 		for (char i = 0; i < 8; i++) {
@@ -246,10 +249,55 @@ protected:
 	cwc::glShader *shader;
 	vector<Body> bodies;
 	bool pressed = 0;
+	vector<object> cubesToObject(vector<Cube*>& input) {
+		vector<object> toReturn;
+		for (vector<Cube*>::iterator iter = input.begin(); iter != input.end(); iter++) {
+			Vertex* ref = ((*iter)->translatedVertices);
+			toReturn.emplace_back(object{ { Face{ { v3f{ ref[7].x , ref[7].y, ref[7].z}, 
+													v3f{ ref[5].x , ref[5].y, ref[5].z },
+													v3f{ ref[1].x , ref[1].y, ref[1].z },
+													v3f{ ref[3].x , ref[3].y, ref[3].z } } },
+											Face{ { v3f{ ref[6].x , ref[6].y, ref[6].z },
+													v3f{ ref[4].x , ref[4].y, ref[4].z },
+													v3f{ ref[0].x , ref[0].y, ref[0].z },
+													v3f{ ref[2].x , ref[2].y, ref[2].z } } },
+											Face{ { v3f{ ref[7].x , ref[7].y, ref[7].z },
+													v3f{ ref[6].x , ref[6].y, ref[6].z },
+													v3f{ ref[2].x , ref[2].y, ref[2].z },
+													v3f{ ref[3].x , ref[3].y, ref[3].z } } },
+											Face{ { v3f{ ref[3].x , ref[3].y, ref[3].z },
+													v3f{ ref[2].x , ref[2].y, ref[2].z },
+													v3f{ ref[0].x , ref[0].y, ref[0].z },
+													v3f{ ref[1].x , ref[1].y, ref[1].z } } },
+											Face{ { v3f{ ref[7].x , ref[7].y, ref[7].z },
+													v3f{ ref[6].x , ref[6].y, ref[6].z },
+													v3f{ ref[4].x , ref[4].y, ref[4].z },
+													v3f{ ref[5].x , ref[5].y, ref[5].z } } },
+											Face{ { v3f{ ref[5].x , ref[5].y, ref[5].z },
+													v3f{ ref[4].x , ref[4].y, ref[4].z },
+													v3f{ ref[0].x , ref[0].y, ref[0].z },
+													v3f{ ref[1].x , ref[1].y, ref[1].z } } }
+													},6 });
+			
+		}
+		return toReturn;
+	}
 public:
 	myWindow() {}
 	virtual void OnRender(void)
 	{
+		vector<Cube*> allBodyCubes[4] = { bodies[0].getCubes(), bodies[1].getCubes(), bodies[2].getCubes(), bodies[3].getCubes() };
+		vector<Cube*> allObject;
+		allObject.insert(allObject.end(), allBodyCubes[0].begin(), allBodyCubes[0].end());
+		allObject.insert(allObject.end(), allBodyCubes[1].begin(), allBodyCubes[1].end());
+		allObject.insert(allObject.end(), allBodyCubes[2].begin(), allBodyCubes[2].end());
+		allObject.insert(allObject.end(), allBodyCubes[3].begin(), allBodyCubes[3].end());
+		vector<object> convertedObjects = cubesToObject(allObject);
+		objects = &convertedObjects[0];
+		SetFaceNormals(convertedObjects.size());
+		physicsOnRenderCallback();
+
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		glMatrixMode(GL_PROJECTION);
@@ -259,6 +307,7 @@ public:
 		glOrtho(-1.5, 1.5, -1.5, 1.5, -1.5, 1.5);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
+		DrawSphere(&sphere);
 		if (shader) shader->begin();
 		//draw rotating platforms
 		bodies[0].drawPlatforms();
@@ -275,8 +324,18 @@ public:
 	}
 
 	virtual void OnIdle() {
+		vector<Cube*> allBodyCubes[4] = { bodies[0].getCubes(), bodies[1].getCubes(), bodies[2].getCubes(), bodies[3].getCubes() };
+		vector<Cube*> allObject;
+		allObject.insert(allObject.end(), allBodyCubes[0].begin(), allBodyCubes[0].end());
+		allObject.insert(allObject.end(), allBodyCubes[1].begin(), allBodyCubes[1].end());
+		allObject.insert(allObject.end(), allBodyCubes[2].begin(), allBodyCubes[2].end());
+		allObject.insert(allObject.end(), allBodyCubes[3].begin(), allBodyCubes[3].end());
+		vector<object> convertedObjects = cubesToObject(allObject);
+		objects = &convertedObjects[0];
 		if(pressed == false)
 			bodies[0].autoRotate();
+		SetFaceNormals(convertedObjects.size());
+		physicsOnIdleCallback(convertedObjects.size());
 	}
 
 	// When OnInit is called, a render context (in this case GLUT-Window) 
@@ -321,16 +380,11 @@ public:
 		bodies[3].addPlatform({ 0, 0, 2, 2, 4, 5 }, render)
 			.addPlatform({ 4, 4, -5, -5, 0, 0 }, exceptUpperRight)
 			.addPlatform({ -1, -1, 2, 2, 5, 5 }, upperRight);
+		sphere = initsphere();
 		shader = SM.loadfromFile("vertexshader.txt", "fragmentshader.txt"); // load (and compile, link) from file
 		if (shader == 0)
 			std::cout << "Error Loading, compiling or linking shader\n";
 		//gettingVertices example
-		vector<Cube*> thirdBodysCubes = bodies[3].getCubes();
-		for (int i = 0; i < thirdBodysCubes.size(); i++)
-			for (int j = 0; j < 8; j++)
-				cout << "("<< thirdBodysCubes[i]->translatedVertices[j].x << ", "
-				<< thirdBodysCubes[i]->translatedVertices[j].y << ", "
-				<< thirdBodysCubes[i]->translatedVertices[j].z << ")" << endl;
 	}
 
 	virtual void OnResize(int w, int h) {}
@@ -354,6 +408,22 @@ public:
 		{
 			bodies[0].rotate(5.0f);
 			pressed = true;
+		}
+		else if (cAscii == '1')
+		{
+			sphere.velocity.z -= 0.005f;
+		}
+		else if (cAscii == '3')
+		{
+			sphere.velocity.z += 0.005f;
+		}
+		else if (cAscii == '7')
+		{
+			sphere.velocity.x += 0.005f;
+		}
+		else if (cAscii == '9')
+		{
+			sphere.velocity.x -= 0.005f;
 		}
 	};
 

@@ -190,6 +190,7 @@ protected:
 	GLfloat b;
 	GLfloat angle = 0.0f;
 public:
+	GLfloat getAngle() { return angle; };
 	vector<Platform> platforms;
 	Body& addPlatform(vector<int> addPlatform, bool renderOrNot[6])
 	{
@@ -211,18 +212,20 @@ public:
 		for (int i = 0; i < (int)platforms.size(); ++i)
 			platforms[i].rotate(angle);
 	}
-	void autoRotate()
+	int autoRotate()
 	{
-		if ((angle >= 0.0f && angle < 45.0f) || (angle >= 90.0f && angle < 135.0f) || (angle >= 180.0f && angle < 225.0f) || (angle >= 270.0f && angle < 315.0f))
+		int toReturn = 0;
+		if ((angle > 0.0f && angle <= 45.0f) || (angle > 90.0f && angle <= 135.0f) || (angle > 180.0f && angle <= 225.0f) || (angle > 270.0f && angle <= 315.0f)) {
 			angle -= 1.0f;
-		else if ((angle >= 45.0f && angle < 90.0f) || (angle >= 135.0f && angle < 180.0f) || (angle >= 225.0f && angle < 270.0f) || (angle >= 315.0f && angle < 360.0f))
+			toReturn = -1;
+		}
+		else if ((angle > 45.0f && angle < 90.0f) || (angle > 135.0f && angle < 180.0f) || (angle > 225.0f && angle < 270.0f) || (angle > 315.0f && angle < 360.0f)) {
 			angle += 1.0f;
-		if (angle - 90.0f <= 1.0f && angle - 90.0f >= -1.0f) angle = 90.0f;
-		else if (angle - 180.0f <= 1.0f && angle - 180.0f >= -1.0f) angle = 180.0f;
-		else if (angle - 270.0f <= 1.0f && angle - 270.0f >= -1.0f) angle = 270.0f;
-		else if (angle <= 1.0f || angle - 360.0f >= -1.0f)  angle = 0.0f;
+			toReturn = 1;
+		}
 		for (int i = 0; i < (int)platforms.size(); ++i)
 			platforms[i].rotate(angle);
+		return toReturn;
 	}
 	void angleStabilaze()
 	{
@@ -318,6 +321,7 @@ public:
 		bodies[3].drawPlatforms();
 		if (shader) shader->end();
 
+		angle_G = bodies[0].getAngle();
 		glutSwapBuffers();
 
 		Repaint();
@@ -332,10 +336,17 @@ public:
 		allObject.insert(allObject.end(), allBodyCubes[3].begin(), allBodyCubes[3].end());
 		vector<object> convertedObjects = cubesToObject(allObject);
 		objects = &convertedObjects[0];
-		if(pressed == false)
-			bodies[0].autoRotate();
+		if (pressed == false) {
+			int ifRotated = bodies[0].autoRotate();
+			float xtmp = sphere.center.x;
+			float ztmp = sphere.center.z;
+			sphere.center.x = xtmp * cosf(ifRotated / 180.f * M_PI) - ztmp * sinf(ifRotated / 180.f * M_PI);
+			sphere.center.z = ztmp * cosf(ifRotated / 180.f * M_PI) + xtmp * sinf(ifRotated / 180.f * M_PI);
+
+		}
 		SetFaceNormals(convertedObjects.size());
 		physicsOnIdleCallback(convertedObjects.size());
+		angle_G = bodies[0].getAngle();
 	}
 
 	// When OnInit is called, a render context (in this case GLUT-Window) 
@@ -402,28 +413,43 @@ public:
 		else if (cAscii == 'A' || cAscii == 'a')
 		{
 			bodies[0].rotate(-5.0f);
+
+			float xtmp = sphere.center.x;
+			float ztmp = sphere.center.z;
+			sphere.center.x = xtmp * cosf(-5.0f / 180.f * M_PI) - ztmp * sinf(-5.0f / 180.f * M_PI);
+			sphere.center.z = ztmp * cosf(-5.0f / 180.f * M_PI) + xtmp * sinf(-5.0f / 180.f * M_PI);
+
 			pressed = true;
 		}
 		else if (cAscii == 'D' || cAscii == 'd')
 		{
 			bodies[0].rotate(5.0f);
+
+			float xtmp = sphere.center.x;
+			float ztmp = sphere.center.z;
+			sphere.center.x = xtmp * cosf(5.0f / 180.f * M_PI) - ztmp * sinf(5.0f / 180.f * M_PI);
+			sphere.center.z = ztmp * cosf(5.0f / 180.f * M_PI) + xtmp * sinf(5.0f / 180.f * M_PI);
 			pressed = true;
 		}
 		else if (cAscii == '1')
 		{
-			sphere.velocity.z -= 0.005f;
+			sphere.velocity.z -= 0.003f;
 		}
 		else if (cAscii == '3')
 		{
-			sphere.velocity.z += 0.005f;
+			sphere.velocity.z += 0.003f;
 		}
 		else if (cAscii == '7')
 		{
-			sphere.velocity.x += 0.005f;
+			sphere.velocity.x += 0.003f;
 		}
 		else if (cAscii == '9')
 		{
-			sphere.velocity.x -= 0.005f;
+			sphere.velocity.x -= 0.003f;
+		}
+		else if (cAscii == '0')
+		{
+			cout << sphere.center.x << sphere.center.z;
 		}
 	};
 

@@ -52,6 +52,8 @@ int collision(sub * sphere, Object * object, int size);
 void DrawSphere(sub * sphere);
 void physicsOnIdleCallback(int objectArrayElementNum);
 void physicsOnRenderCallback();
+void physicsOnKeyDownCallback(int objectArrayElementNum);
 void SetFaceNormals(int objectArrayElementNum);
 extern object* objects;
 extern sub sphere;
+extern float angle_G;

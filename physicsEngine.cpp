@@ -14,6 +14,7 @@
 
 object* objects;
 sub sphere;
+float angle_G;
 
 sub initsphere()
 {
@@ -588,14 +589,15 @@ void SetFaceNormals(int objectArrayElementNum)
 
 void physicsOnIdleCallback(int objectArrayElementNum)
 {
-	if (collision(&sphere, objects, objectArrayElementNum) == 0)
+	int iscollision = collision(&sphere, objects, objectArrayElementNum);
+
+	if (iscollision == 0)
 	{
 		sphere.acc.z = 0;
-		sphere.acc.y = -0.001;
+		sphere.acc.y = 0;
 		sphere.acc.x = 0;
-	};
-
-
+	}
+	
 
 	glutPostRedisplay();
 }

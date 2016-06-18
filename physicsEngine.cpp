@@ -594,7 +594,7 @@ void physicsOnIdleCallback(int objectArrayElementNum)
 	if (iscollision == 0)
 	{
 		sphere.acc.z = 0;
-		sphere.acc.y = 0;
+		sphere.acc.y = -0.025;
 		sphere.acc.x = 0;
 	}
 	

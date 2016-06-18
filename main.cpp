@@ -252,6 +252,8 @@ protected:
 	cwc::glShader *shader;
 	vector<Body> bodies;
 	bool pressed = 0;
+	bool buttonRotating = false;
+	bool autoRotating = false;
 	vector<object> cubesToObject(vector<Cube*>& input) {
 		vector<object> toReturn;
 		for (vector<Cube*>::iterator iter = input.begin(); iter != input.end(); iter++) {
@@ -338,12 +340,32 @@ public:
 		objects = &convertedObjects[0];
 		if (pressed == false) {
 			int ifRotated = bodies[0].autoRotate();
-			float xtmp = sphere.center.x;
-			float ztmp = sphere.center.z;
-			sphere.center.x = xtmp * cosf(ifRotated / 180.f * M_PI) - ztmp * sinf(ifRotated / 180.f * M_PI);
-			sphere.center.z = ztmp * cosf(ifRotated / 180.f * M_PI) + xtmp * sinf(ifRotated / 180.f * M_PI);
+			autoRotating = ifRotated == 0 ? false : true;
+
+			if (pow(sphere.center.x, 2) + pow(sphere.center.z, 2) <= 0.7*0.7)
+			{
+				float xtmp = sphere.center.x;
+				float ztmp = sphere.center.z;
+				sphere.center.x = xtmp * cosf(ifRotated / 180.f * M_PI) - ztmp * sinf(ifRotated / 180.f * M_PI);
+				sphere.center.z = ztmp * cosf(ifRotated / 180.f * M_PI) + xtmp * sinf(ifRotated / 180.f * M_PI);
+			}
 
 		}
+
+		if (sphere.center.y < 0 && (sphere.center.x >= 0.5f && sphere.center.z >= -0.1f && sphere.center.z <= 0.1f && buttonRotating == false && autoRotating == false
+			|| (sphere.center.x >= 0.6f && sphere.center.z >= -0.0875f && sphere.center.z <= 0.0875f && (buttonRotating == true || autoRotating == true))))
+		{
+			sphere.center.x -= 1.0f;
+			sphere.center.y += 1.4f;
+			sphere.center.z += 0.99f;
+		}
+		else if (sphere.center.y >= 0 && (sphere.center.x < -0.5 && sphere.center.z >= -0.1f + 1.0f && sphere.center.z <= 0.1f + 1.0f))
+		{
+			sphere.center.x += 1.0f;
+			sphere.center.y -= 1.4f;
+			sphere.center.z -= 0.99f;
+		}
+	
 		SetFaceNormals(convertedObjects.size());
 		physicsOnIdleCallback(convertedObjects.size());
 		angle_G = bodies[0].getAngle();
@@ -390,7 +412,8 @@ public:
 		bodies[2].addPlatform({ 0, 0, 2, 2, -7, -4 }, render);
 		bodies[3].addPlatform({ 0, 0, 2, 2, 4, 5 }, render)
 			.addPlatform({ 4, 4, -5, -5, 0, 0 }, exceptUpperRight)
-			.addPlatform({ -1, -1, 2, 2, 5, 5 }, upperRight);
+			.addPlatform({ -1, -1, 2, 2, 5, 5 }, upperRight)
+			.addPlatform({-2, -2, 2, 2, 5, 5}, notRender);
 		sphere = initsphere();
 		shader = SM.loadfromFile("vertexshader.txt", "fragmentshader.txt"); // load (and compile, link) from file
 		if (shader == 0)
@@ -413,27 +436,36 @@ public:
 		else if (cAscii == 'A' || cAscii == 'a')
 		{
 			bodies[0].rotate(-5.0f);
+			buttonRotating = true;
 
-			float xtmp = sphere.center.x;
-			float ztmp = sphere.center.z;
-			sphere.center.x = xtmp * cosf(-5.0f / 180.f * M_PI) - ztmp * sinf(-5.0f / 180.f * M_PI);
-			sphere.center.z = ztmp * cosf(-5.0f / 180.f * M_PI) + xtmp * sinf(-5.0f / 180.f * M_PI);
 
+			if (pow(sphere.center.x, 2) + pow(sphere.center.z, 2) <= 0.7*0.7)
+			{
+				float xtmp = sphere.center.x;
+				float ztmp = sphere.center.z;
+				sphere.center.x = xtmp * cosf(-5.0f / 180.f * M_PI) - ztmp * sinf(-5.0f / 180.f * M_PI);
+				sphere.center.z = ztmp * cosf(-5.0f / 180.f * M_PI) + xtmp * sinf(-5.0f / 180.f * M_PI);
+			}
 			pressed = true;
 		}
 		else if (cAscii == 'D' || cAscii == 'd')
 		{
 			bodies[0].rotate(5.0f);
+			buttonRotating = true;
 
-			float xtmp = sphere.center.x;
-			float ztmp = sphere.center.z;
-			sphere.center.x = xtmp * cosf(5.0f / 180.f * M_PI) - ztmp * sinf(5.0f / 180.f * M_PI);
-			sphere.center.z = ztmp * cosf(5.0f / 180.f * M_PI) + xtmp * sinf(5.0f / 180.f * M_PI);
+
+			if (pow(sphere.center.x, 2) + pow(sphere.center.z, 2) <= 0.7*0.7)
+			{
+				float xtmp = sphere.center.x;
+				float ztmp = sphere.center.z;
+				sphere.center.x = xtmp * cosf(5.0f / 180.f * M_PI) - ztmp * sinf(5.0f / 180.f * M_PI);
+				sphere.center.z = ztmp * cosf(5.0f / 180.f * M_PI) + xtmp * sinf(5.0f / 180.f * M_PI);
+			}
 			pressed = true;
 		}
 		else if (cAscii == '1')
 		{
-			sphere.velocity.z -= 0.003f;
+			sphere.velocity.x -= 0.003f;
 		}
 		else if (cAscii == '3')
 		{
@@ -441,11 +473,11 @@ public:
 		}
 		else if (cAscii == '7')
 		{
-			sphere.velocity.x += 0.003f;
+			sphere.velocity.z -= 0.003f;
 		}
 		else if (cAscii == '9')
 		{
-			sphere.velocity.x -= 0.003f;
+			sphere.velocity.x += 0.003f;
 		}
 		else if (cAscii == '0')
 		{
@@ -465,6 +497,7 @@ public:
 		}
 		else if (cAscii == 'A' || cAscii == 'a' || cAscii == 'D' || cAscii == 'd')
 		{
+			buttonRotating = false;
 			bodies[0].angleStabilaze();
 			pressed = false;
 		}
